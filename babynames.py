@@ -15,6 +15,7 @@
 import sys
 import re
 import argparse
+import os
 
 """
 Define the extract_names() function below and change main()
@@ -47,9 +48,22 @@ def extract_names(filename):
     with the year string followed by the name-rank strings in alphabetical order.
     ['2006', 'Aaliyah 91', Aaron 57', 'Abagail 895', ' ...]
     """
-    names = []
+    year = filename[-9:-5]
+
+    names = [year]
+    with open(filename) as f:
+        text = f.read()
+        name_list = re.findall(r'<td>(\d+)</td><td>(\w+)</td><td>(\w+)</td>', text)
+
+        for item in name_list:
+            names.append(item[1] + " " + item[0])
+            names.append(item[2] + " " + item[0])
+
     # +++your code here+++
-    return names
+
+    names.sort()
+
+    return '\n'.join(names) + '\n'
 
 
 def create_parser():
@@ -75,7 +89,6 @@ def main(args):
         sys.exit(1)
 
     file_list = ns.files
-
     # option flag
     create_summary = ns.summaryfile
 
@@ -83,9 +96,14 @@ def main(args):
     # Format the resulting list a vertical list (separated by newline \n)
     # Use the create_summary flag to decide whether to print the list,
     # or to write the list to a summary file e.g. `baby1990.html.summary`
-
+    if create_summary:
+        for item in file_list:
+            with open((item) + '.summary', 'w') as f:
+                f.write(extract_names(item))
+    else:
+        for item in file_list:
+            print(extract_names(item))
     # +++your code here+++
-
 
 if __name__ == '__main__':
     main(sys.argv[1:])
